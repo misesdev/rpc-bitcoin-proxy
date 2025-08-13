@@ -10,11 +10,11 @@ const TOKEN = process.env.ACCESS_TOKEN;
 const NODES: any = {
     mainnet: {
         url: process.env.MAINNET_NODE_URL,
-        auth: process.env.MAINNET_AUTH 
+        auth: process.env.MAINNET_AUTH?.replace("|", ":")
     },
     testnet: {
         url: process.env.TESTNET_NODE_URL,
-        auth: process.env.TESTNET_AUTH
+        auth: process.env.TESTNET_AUTH?.replace("|", ":")
     }
 };
 
@@ -55,6 +55,6 @@ app.post("/:network", async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+app.listen(8081, () => {
     console.log("Proxy server running on port 3000");
 });
