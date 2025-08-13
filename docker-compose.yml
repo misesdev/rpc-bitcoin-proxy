@@ -1,0 +1,36 @@
+
+services:
+  bitcoin-mainnet:
+    build: .
+    volumes:
+      - /home/mises/rpc-bitcoin-proxy/mainnet:/bitcoin
+    command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
+    ports:
+      - "8332:8332"
+      - "8333:8333"
+    restart: unless-stopped
+
+  bitcoin-testnet:
+    build: .
+    volumes:
+      - /home/mises/bitcoin-proxy/testnet:/bitcoin
+    command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
+    ports:
+      - "18332:18332"
+      - "18333:18333"
+    restart: unless-stopped
+
+  proxy:
+    build: ./proxy
+    environment:
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - MAINNET_NODE_URL=${MAINNET_NODE_URL}
+      - TESTNET_NODE_URL=${TESTNET_NODE_URL}
+      - MAINNET_AUTH=${MAINNET_AUTH}
+      - TESTNET_AUTH=${TESTNET_AUTH}
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    depends_on:
+      - bitcoin-mainnet
+      - bitcoin-testnet
