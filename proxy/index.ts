@@ -1,30 +1,21 @@
 import express from "express";
 import bodyParser from "body-parser";
 import AllowedMethods from "./src/AllowedMethods";
+import Nodes from "./src/Nodes";
+import axios from "axios"
 
 const app = express();
 app.use(bodyParser.json());
 
-const TOKEN = process.env.ACCESS_TOKEN;
-
-const NODES: any = {
-    mainnet: {
-        url: process.env.MAINNET_NODE_URL,
-        auth: process.env.MAINNET_AUTH?.replace("|", ":")
-    },
-    testnet: {
-        url: process.env.TESTNET_NODE_URL,
-        auth: process.env.TESTNET_AUTH?.replace("|", ":")
-    }
-};
-
 app.post("/:network", async (req, res) => {
+    
     const token = req.headers["authorization"];
-    if (token !== `Bearer ${TOKEN}`) 
+    if (token !== `Bearer ${process.env.ACCESS_TOKEN}`) 
         return res.status(401).json({ error: "Unauthorized" });
 
     const { network } = req.params;
-    if (!NODES[network]) 
+    const bitcoinNode = Nodes[network as "mainnet"|"testnet"]
+    if (!bitcoinNode) 
         return res.status(400).json({ error: "Invalid network" });
 
     const { method, params } = req.body;
@@ -32,12 +23,14 @@ app.post("/:network", async (req, res) => {
     if (!AllowedMethods.includes(method)) 
         return res.status(403).json({ error: "Method not allowed" });
 
-    try {
-        const response = await fetch(NODES[network].url, {
+    try 
+    {
+        const authorization = Buffer.from(bitcoinNode.auth).toString("base64")
+        const response = await axios.post(bitcoinNode.url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Basic ${Buffer.from(NODES[network].auth).toString("base64")}`
+                "Authorization": `Basic ${authorization}`
             },
             body: JSON.stringify({
                 jsonrpc: "1.0",
@@ -46,10 +39,9 @@ app.post("/:network", async (req, res) => {
                 params
             })
         });
-
-        const data = await response.json();
-        res.json(data);
-    } catch (err) {
+        res.json(response.data);
+    } 
+    catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal error" });
     }
@@ -57,4 +49,4 @@ app.post("/:network", async (req, res) => {
 
 app.listen(8081, () => {
     console.log("Proxy server running on port 3000");
-});
+})
