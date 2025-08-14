@@ -1,5 +1,6 @@
 
 const AllowedMethods = [
+    "importaddress",
     "getblockchaininfo",
     "getblock",
     "getrawtransaction",
