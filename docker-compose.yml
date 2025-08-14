@@ -3,7 +3,7 @@ services:
   bitcoin-mainnet:
     build: .
     volumes:
-      - ~/rpc-bitcoin-proxy/mainnet:/bitcoin
+      - ~/bitcoin-rpc/rpc-bitcoin-proxy/mainnet:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
       - "8332:8332"
@@ -13,7 +13,7 @@ services:
   bitcoin-testnet:
     build: .
     volumes:
-      - ~/rpc-bitcoin-proxy/testnet:/bitcoin
+      - ~/bitcoin-rpc/rpc-bitcoin-proxy/testnet:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
       - "18332:18332"

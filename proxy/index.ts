@@ -25,19 +25,18 @@ app.post("/:network", async (req, res) => {
 
     try 
     {
-        const authorization = Buffer.from(bitcoinNode.auth).toString("base64")
-        const response = await axios.post(bitcoinNode.url, {
-            method: "POST",
+        const httpClient = axios.create({
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Basic ${authorization}`
-            },
-            body: JSON.stringify({
-                jsonrpc: "1.0",
-                id: "proxy",
-                method,
-                params
-            })
+                "Authorization": `Basic ${Buffer.from(bitcoinNode.auth).toString("base64")}`
+            }
+        })
+
+        const response = await httpClient.post(bitcoinNode.url, {
+            jsonrpc: "1.0",
+            id: "proxy",
+            method,
+            params
         });
         res.json(response.data);
     } 
