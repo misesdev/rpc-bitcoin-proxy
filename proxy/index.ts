@@ -31,7 +31,6 @@ app.post("/:network", async (req, res) => {
                 "Authorization": `Basic ${Buffer.from(bitcoinNode.auth).toString("base64")}`
             }
         })
-
         const response = await httpClient.post(bitcoinNode.url, {
             jsonrpc: "1.0",
             id: "proxy",
