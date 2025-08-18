@@ -31,7 +31,7 @@ services:
   rpc-proxy:
     build: ./rpc-proxy
     environment:
-      - APP_PORT=${RPC_PROXY_PORT}
+      - RPC_PROXY_PORT=${RPC_PROXY_PORT}
       - ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
       - MAINNET_NODE_URL=${RPC_MAINNET_NODE_URL}
       - TESTNET_NODE_URL=${RPC_TESTNET_NODE_URL}
@@ -107,7 +107,7 @@ services:
     environment:
       - ESPLORA_MAINNET_URL=${RPC_ACCESS_TOKEN}
       - ESPLORA_TESTNET_URL=${RPC_MAINNET_NODE_URL}
-      - APP_PORT=${ESPLORA_PROXY_PORT}
+      - ESPLORA_PROXY_PORT=${ESPLORA_PROXY_PORT}
     ports:
       - "${ESPLORA_PROXY_PORT}:${ESPLORA_PROXY_PORT}"
     restart: unless-stopped
