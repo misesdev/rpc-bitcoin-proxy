@@ -6,6 +6,7 @@ import axios from "axios"
 
 const app = express();
 app.use(bodyParser.json());
+const appPort = process.env.RPC_PROXY_PORT
 
 app.post("/:network", async (req, res) => {
     
@@ -45,6 +46,6 @@ app.post("/:network", async (req, res) => {
     }
 });
 
-app.listen(8081, () => {
-    console.log("Proxy server running on port 3000");
+app.listen(appPort, () => {
+    console.log(`RPC Proxy server running on port ${appPort}`);
 })

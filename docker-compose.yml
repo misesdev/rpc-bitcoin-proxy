@@ -3,34 +3,113 @@ services:
   bitcoin-mainnet:
     build: .
     volumes:
-      - ~/bitcoin-rpc/rpc-bitcoin-proxy/mainnet:/bitcoin
+      - ${MAINNET_NODE_DIR}:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
-      - "8332:8332"
-      - "8333:8333"
+      - "${MAINNET_RPC_PORT}:8332"
+      - "${MAINNET_P2P_PORT}:8333"
+      - "${MAINNET_ZMQ_BLOCK_PORT}:28332"   # ZMQ block
+      - "${MAINNET_ZMQ_TX_PORT}:28333"   # ZMQ tx
     restart: unless-stopped
+    networks:
+      - bitcoin-net
 
   bitcoin-testnet:
     build: .
     volumes:
-      - ~/bitcoin-rpc/rpc-bitcoin-proxy/testnet:/bitcoin
+      - ${TESTNET_NODE_DIR}:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
-      - "18332:18332"
-      - "18333:18333"
+      - "${TESTNET_RPC_PORT}:18332"
+      - "${TESTNET_P2P_PORT}:18333"
+      - "${TESTNET_ZMQ_BLOCK_PORT}:28334"   # ZMQ block
+      - "${TESTNET_ZMQ_TX_PORT}:28335"   # ZMQ tx
     restart: unless-stopped
+    networks:
+      - bitcoin-net
 
-  proxy:
-    build: ./proxy
+  rpc-proxy:
+    build: ./rpc-proxy
     environment:
-      - ACCESS_TOKEN=${ACCESS_TOKEN}
-      - MAINNET_NODE_URL=${MAINNET_NODE_URL}
-      - TESTNET_NODE_URL=${TESTNET_NODE_URL}
-      - MAINNET_AUTH=${MAINNET_AUTH}
-      - TESTNET_AUTH=${TESTNET_AUTH}
+      - ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
+      - MAINNET_NODE_URL=${RPC_MAINNET_NODE_URL}
+      - TESTNET_NODE_URL=${RPC_TESTNET_NODE_URL}
+      - MAINNET_AUTH=${RPC_MAINNET_AUTH}
+      - TESTNET_AUTH=${RPC_TESTNET_AUTH}
     ports:
       - "8081:8081"
     restart: unless-stopped
     depends_on:
       - bitcoin-mainnet
       - bitcoin-testnet
+    networks:
+      - bitcoin-net
+
+  # api https://github.com/Blockstream/esplora
+  esplora-mainnet:
+    image: blockstream/esplora:latest
+    container_name: esplora-mainnet
+    depends_on:
+      - bitcoin-mainnet
+    volumes:
+      # node mainnet directory
+      - ${MAINNET_NODE_DIR}:/data/.bitcoin
+      # database mainnet esplora
+      - ${ESPLORA_MAINNET_DB}:/data/db
+    environment:
+      - NET=mainnet
+    command: >
+      --daemon-dir /data/.bitcoin
+      --cookie /data/.bitcoin/.cookie
+      --db-dir /data/db
+      --http-addr 0.0.0.0:${ESPLORA_MAINNET_PORT}
+      --zmq tcp://bitcoin-testnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${MAINNET_ZMQ_TX_PORT}
+    ports:
+      - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
+    restart: unless-stopped
+    networks:
+      - bitcoin-net
+
+  # api https://github.com/Blockstream/esplora
+  esplora-testnet4:
+    image: blockstream/esplora:latest
+    container_name: esplora-testnet4
+    depends_on:
+      - bitcoin-testnet
+    volumes:
+      # node testnet4 directory
+      - ${TESTNET_NODE_DIR}:/data/.bitcoin
+      # esplora testnet database
+      - ${ESPLORA_TESTNET_DB}:/data/db
+    environment:
+      - NET=testnet
+    command: >
+      --daemon-dir /data/.bitcoin
+      --cookie /data/.bitcoin/.cookie
+      --db-dir /data/db
+      --http-addr 0.0.0.0:${ESPLORA_TESTNET_PORT}
+      --zmq tcp://bitcoin-mainnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${TESTNET_ZMQ_TX_PORT}
+    ports:
+      - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
+    restart: unless-stopped
+    networks:
+      - bitcoin-net
+
+  api-proxy:
+    build: ./api-proxy/
+    environment:
+      - ESPLORA_MAINNET_URL=${RPC_ACCESS_TOKEN}
+      - ESPLORA_TESTNET_URL=${RPC_MAINNET_NODE_URL}
+      - APP_PORT=${ESPLORA_PROXY_PORT}
+    ports:
+      - "${ESPLORA_PROXY_PORT}:${ESPLORA_PROXY_PORT}"
+    restart: unless-stopped
+    depends_on:
+      - esplora-mainnet
+      - esplora-testnet4
+    networks:
+      - bitcoin-net
+
+networks:
+  bitcoin-net:
+    driver: bridge
