@@ -59,7 +59,7 @@ services:
       - ${ESPLORA_MAINNET_DB}:/data/db
     environment:
       - NET=mainnet
-    command: >
+    command: 
       - --daemon-dir 
       - /data/.bitcoin
       - --cookie
@@ -89,7 +89,7 @@ services:
       - ${ESPLORA_TESTNET_DB}:/data/db
     environment:
       - NET=testnet
-    command: >
+    command:
       - --daemon-dir 
       - /data/.bitcoin
       - --cookie 
