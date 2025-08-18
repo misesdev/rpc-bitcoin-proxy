@@ -47,81 +47,81 @@ services:
       - bitcoin-net
 
   # api https://github.com/Blockstream/esplora
-  esplora-mainnet:
-    image: blockstream/esplora:latest
-    container_name: esplora-mainnet
-    depends_on:
-      - bitcoin-mainnet
-    volumes:
-      # node mainnet directory
-      - ${MAINNET_NODE_DIR}:/data/.bitcoin
-      # database mainnet esplora
-      - ${ESPLORA_MAINNET_DB}:/data/db
-    environment:
-      - NET=mainnet
-      - API_URL=http://localhost:${ESPLORA_MAINNET_PORT}
-    command:  
-      - "/srv/explorer/run.sh"
-      - "bitcoin-mainnet"
-      - "explorer"
-      - "--daemon-dir=/data/.bitcoin"
-      - "--cookie=/data/.bitcoin/.cookie"
-      - "--db-dir=/data/db"
-      - "--http-addr=0.0.0.0:${ESPLORA_MAINNET_PORT}"
-      - "--zmq=tcp://bitcoin-mainnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${MAINNET_ZMQ_TX_PORT}"
-    ports:
-      - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
-      # - "8085:5000"   # API REST
-      # - "8086:80"     # UI Web (opcional)
-    restart: unless-stopped
-    networks:
-      - bitcoin-net
+  # esplora-mainnet:
+  #   image: blockstream/esplora:latest
+  #   container_name: esplora-mainnet
+  #   depends_on:
+  #     - bitcoin-mainnet
+  #   volumes:
+  #     # node mainnet directory
+  #     - ${MAINNET_NODE_DIR}:/data/.bitcoin
+  #     # database mainnet esplora
+  #     - ${ESPLORA_MAINNET_DB}:/data/db
+  #   environment:
+  #     - NET=mainnet
+  #     - API_URL=http://localhost:${ESPLORA_MAINNET_PORT}
+  #   command:  
+  #     - "/srv/explorer/run.sh"
+  #     - "bitcoin-mainnet"
+  #     - "explorer"
+  #     - "--daemon-dir=/data/.bitcoin"
+  #     - "--cookie=/data/.bitcoin/.cookie"
+  #     - "--db-dir=/data/db"
+  #     - "--http-addr=0.0.0.0:${ESPLORA_MAINNET_PORT}"
+  #     - "--zmq=tcp://bitcoin-mainnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${MAINNET_ZMQ_TX_PORT}"
+  #   ports:
+  #     - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
+  #     # - "8085:5000"   # API REST
+  #     # - "8086:80"     # UI Web (opcional)
+  #   restart: unless-stopped
+  #   networks:
+  #     - bitcoin-net
 
-  # api https://github.com/Blockstream/esplora
-  esplora-testnet4:
-    image: blockstream/esplora:latest
-    container_name: esplora-testnet4
-    depends_on:
-      - bitcoin-testnet
-    volumes:
-      # node testnet4 directory
-      - ${TESTNET_NODE_DIR}/testnet4:/data/.bitcoin
-      # esplora testnet database
-      - ${ESPLORA_TESTNET_DB}:/data/db
-    environment:
-      - NET=testnet
-      - API_URL=http://localhost:${ESPLORA_TESTNET_PORT}
-    command: 
-      - "/srv/explorer/run.sh"
-      - "bitcoin-testnet"
-      - "explorer"
-      - "--daemon-dir=/data/.bitcoin"
-      - "--cookie=/data/.bitcoin/.cookie"
-      - "--db-dir=/data/db"
-      - "--http-addr=0.0.0.0:${ESPLORA_TESTNET_PORT}"
-      - "--zmq=tcp://bitcoin-testnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${TESTNET_ZMQ_TX_PORT}"
-    ports:
-      - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
-      # - "8087:5000"   # API REST
-      # - "8088:80"     # UI Web (opcional)
-    restart: unless-stopped
-    networks:
-      - bitcoin-net
+  # # api https://github.com/Blockstream/esplora
+  # esplora-testnet4:
+  #   image: blockstream/esplora:latest
+  #   container_name: esplora-testnet4
+  #   depends_on:
+  #     - bitcoin-testnet
+  #   volumes:
+  #     # node testnet4 directory
+  #     - ${TESTNET_NODE_DIR}/testnet4:/data/.bitcoin
+  #     # esplora testnet database
+  #     - ${ESPLORA_TESTNET_DB}:/data/db
+  #   environment:
+  #     - NET=testnet
+  #     - API_URL=http://localhost:${ESPLORA_TESTNET_PORT}
+  #   command: 
+  #     - "/srv/explorer/run.sh"
+  #     - "bitcoin-testnet"
+  #     - "explorer"
+  #     - "--daemon-dir=/data/.bitcoin"
+  #     - "--cookie=/data/.bitcoin/.cookie"
+  #     - "--db-dir=/data/db"
+  #     - "--http-addr=0.0.0.0:${ESPLORA_TESTNET_PORT}"
+  #     - "--zmq=tcp://bitcoin-testnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${TESTNET_ZMQ_TX_PORT}"
+  #   ports:
+  #     - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
+  #     # - "8087:5000"   # API REST
+  #     # - "8088:80"     # UI Web (opcional)
+  #   restart: unless-stopped
+  #   networks:
+  #     - bitcoin-net
 
-  api-proxy:
-    build: ./api-proxy/
-    environment:
-      - ESPLORA_MAINNET_URL=${RPC_ACCESS_TOKEN}
-      - ESPLORA_TESTNET_URL=${RPC_MAINNET_NODE_URL}
-      - ESPLORA_PROXY_PORT=${ESPLORA_PROXY_PORT}
-    ports:
-      - "${ESPLORA_PROXY_PORT}:${ESPLORA_PROXY_PORT}"
-    restart: unless-stopped
-    depends_on:
-      - esplora-mainnet
-      - esplora-testnet4
-    networks:
-      - bitcoin-net
+  # api-proxy:
+  #   build: ./api-proxy/
+  #   environment:
+  #     - ESPLORA_MAINNET_URL=${RPC_ACCESS_TOKEN}
+  #     - ESPLORA_TESTNET_URL=${RPC_MAINNET_NODE_URL}
+  #     - ESPLORA_PROXY_PORT=${ESPLORA_PROXY_PORT}
+  #   ports:
+  #     - "${ESPLORA_PROXY_PORT}:${ESPLORA_PROXY_PORT}"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - esplora-mainnet
+  #     - esplora-testnet4
+  #   networks:
+  #     - bitcoin-net
 
 networks:
   bitcoin-net:
