@@ -89,7 +89,7 @@ services:
       - NET=testnet
     command: 
       - "/srv/explorer/run.sh"
-      - "bitcoin-testnet4"
+      - "bitcoin-testnet"
       - "explorer"
       # - --daemon-dir=/data/.bitcoin
       # - --cookie=/data/.bitcoin/.cookie
