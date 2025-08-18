@@ -31,6 +31,7 @@ services:
   rpc-proxy:
     build: ./rpc-proxy
     environment:
+      - APP_PORT=${RPC_PROXY_PORT}
       - ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
       - MAINNET_NODE_URL=${RPC_MAINNET_NODE_URL}
       - TESTNET_NODE_URL=${RPC_TESTNET_NODE_URL}
