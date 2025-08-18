@@ -56,7 +56,7 @@ services:
       # node mainnet directory
       - ${MAINNET_NODE_DIR}:/data/.bitcoin
       # database mainnet esplora
-      - ${ESPLORA_MAINNET_DB}:/data
+      - ${ESPLORA_MAINNET_DB}:/data/db
     environment:
       - NET=mainnet
       - API_URL=http://localhost:${ESPLORA_MAINNET_PORT}
@@ -71,8 +71,8 @@ services:
       - "--zmq=tcp://bitcoin-mainnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${MAINNET_ZMQ_TX_PORT}"
     ports:
       - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
-      - "8085:5000"   # API REST
-      - "8086:80"     # UI Web (opcional)
+      # - "8085:5000"   # API REST
+      # - "8086:80"     # UI Web (opcional)
     restart: unless-stopped
     networks:
       - bitcoin-net
@@ -87,7 +87,7 @@ services:
       # node testnet4 directory
       - ${TESTNET_NODE_DIR}/testnet4:/data/.bitcoin
       # esplora testnet database
-      - ${ESPLORA_TESTNET_DB}:/data
+      - ${ESPLORA_TESTNET_DB}:/data/db
     environment:
       - NET=testnet
       - API_URL=http://localhost:${ESPLORA_TESTNET_PORT}
