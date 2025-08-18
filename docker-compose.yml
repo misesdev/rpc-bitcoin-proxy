@@ -70,6 +70,8 @@ services:
       - "--zmq=tcp://bitcoin-testnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${MAINNET_ZMQ_TX_PORT}"
     ports:
       - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
+      - "8085:5000"   # API REST
+      - "8086:80"     # UI Web (opcional)
     restart: unless-stopped
     networks:
       - bitcoin-net
@@ -82,7 +84,7 @@ services:
       - bitcoin-testnet
     volumes:
       # node testnet4 directory
-      - ${TESTNET_NODE_DIR}:/data/.bitcoin
+      - ${TESTNET_NODE_DIR}/testnet4:/data/.bitcoin
       # esplora testnet database
       - ${ESPLORA_TESTNET_DB}:/data/db
     environment:
@@ -98,6 +100,8 @@ services:
       - "--zmq=tcp://bitcoin-mainnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${TESTNET_ZMQ_TX_PORT}"
     ports:
       - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
+      - "8087:5000"   # API REST
+      - "8088:80"     # UI Web (opcional)
     restart: unless-stopped
     networks:
       - bitcoin-net
