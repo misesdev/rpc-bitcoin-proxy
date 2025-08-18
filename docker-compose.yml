@@ -38,7 +38,7 @@ services:
       - MAINNET_AUTH=${RPC_MAINNET_AUTH}
       - TESTNET_AUTH=${RPC_TESTNET_AUTH}
     ports:
-      - "8081:8081"
+      - "${RPC_PROXY_PORT}:${RPC_PROXY_PORT}"
     restart: unless-stopped
     depends_on:
       - bitcoin-mainnet
@@ -59,13 +59,12 @@ services:
       - ${ESPLORA_MAINNET_DB}:/data/db
     environment:
       - NET=mainnet
-    command: > 
-      /esplora
-      --daemon-dir=/data/.bitcoin
-      --cookie=/data/.bitcoin/.cookie
-      --db-dir=/data/db
-      --http-addr=0.0.0.0:${ESPLORA_MAINNET_PORT}
-      --zmq=tcp://bitcoin-testnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${MAINNET_ZMQ_TX_PORT}
+    command:  
+      - --daemon-dir=/data/.bitcoin
+      - --cookie=/data/.bitcoin/.cookie
+      - --db-dir=/data/db
+      - --http-addr=0.0.0.0:${ESPLORA_MAINNET_PORT}
+      - --zmq=tcp://bitcoin-testnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${MAINNET_ZMQ_TX_PORT}
     ports:
       - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
     restart: unless-stopped
@@ -85,13 +84,12 @@ services:
       - ${ESPLORA_TESTNET_DB}:/data/db
     environment:
       - NET=testnet
-    command: >
-      /esplora
-      --daemon-dir=/data/.bitcoin
-      --cookie=/data/.bitcoin/.cookie
-      --db-dir=/data/db
-      --http-addr=0.0.0.0:${ESPLORA_TESTNET_PORT}
-      --zmq=tcp://bitcoin-mainnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${TESTNET_ZMQ_TX_PORT}
+    command: 
+      - --daemon-dir=/data/.bitcoin
+      - --cookie=/data/.bitcoin/.cookie
+      - --db-dir=/data/db
+      - --http-addr=0.0.0.0:${ESPLORA_TESTNET_PORT}
+      - --zmq=tcp://bitcoin-mainnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${TESTNET_ZMQ_TX_PORT}
     ports:
       - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
     restart: unless-stopped
