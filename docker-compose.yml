@@ -56,9 +56,10 @@ services:
       # node mainnet directory
       - ${MAINNET_NODE_DIR}:/data/.bitcoin
       # database mainnet esplora
-      - ${ESPLORA_MAINNET_DB}:/data/db
+      - ${ESPLORA_MAINNET_DB}:/data
     environment:
       - NET=mainnet
+      - API_URL=http://localhost:${ESPLORA_MAINNET_PORT}
     command:  
       - "/srv/explorer/run.sh"
       - "bitcoin-mainnet"
@@ -67,7 +68,7 @@ services:
       - "--cookie=/data/.bitcoin/.cookie"
       - "--db-dir=/data/db"
       - "--http-addr=0.0.0.0:${ESPLORA_MAINNET_PORT}"
-      - "--zmq=tcp://bitcoin-testnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${MAINNET_ZMQ_TX_PORT}"
+      - "--zmq=tcp://bitcoin-mainnet:${MAINNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${MAINNET_ZMQ_TX_PORT}"
     ports:
       - "${ESPLORA_MAINNET_PORT}:${ESPLORA_MAINNET_PORT}"
       - "8085:5000"   # API REST
@@ -86,9 +87,10 @@ services:
       # node testnet4 directory
       - ${TESTNET_NODE_DIR}/testnet4:/data/.bitcoin
       # esplora testnet database
-      - ${ESPLORA_TESTNET_DB}:/data/db
+      - ${ESPLORA_TESTNET_DB}:/data
     environment:
       - NET=testnet
+      - API_URL=http://localhost:${ESPLORA_TESTNET_PORT}
     command: 
       - "/srv/explorer/run.sh"
       - "bitcoin-testnet"
@@ -97,11 +99,11 @@ services:
       - "--cookie=/data/.bitcoin/.cookie"
       - "--db-dir=/data/db"
       - "--http-addr=0.0.0.0:${ESPLORA_TESTNET_PORT}"
-      - "--zmq=tcp://bitcoin-mainnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-mainnet:${TESTNET_ZMQ_TX_PORT}"
+      - "--zmq=tcp://bitcoin-testnet:${TESTNET_ZMQ_BLOCK_PORT},tcp://bitcoin-testnet:${TESTNET_ZMQ_TX_PORT}"
     ports:
       - "${ESPLORA_TESTNET_PORT}:${ESPLORA_TESTNET_PORT}"
-      - "8087:5000"   # API REST
-      - "8088:80"     # UI Web (opcional)
+      # - "8087:5000"   # API REST
+      # - "8088:80"     # UI Web (opcional)
     restart: unless-stopped
     networks:
       - bitcoin-net
