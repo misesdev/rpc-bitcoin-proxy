@@ -11,13 +11,13 @@ const authToken = process.env.RPC_ACCESS_TOKEN
 
 app.post("/:network", async (req, res) => {
     
+    const { network } = req.params;
     const token = req.headers["authorization"];
     if (token !== `Bearer ${authToken}`) { 
         console.log(`Unauthorized access token ${token} with ${authToken}`)
         return res.status(401).json({ error: "Unauthorized" })
     }
 
-    const { network } = req.params;
     const bitcoinNode = Nodes[network as "mainnet"|"testnet"]
     if (!bitcoinNode) { 
         console.log(`Unspected network ${network}`)
@@ -49,7 +49,7 @@ app.post("/:network", async (req, res) => {
         console.error(err)
         res.status(500).json({ error: "Internal error" })
     }
-});
+})
 
 app.listen(appPort, () => {
     console.log(`RPC Proxy server running on port ${appPort}`)
