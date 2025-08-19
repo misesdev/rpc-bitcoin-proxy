@@ -6,10 +6,10 @@ services:
       - ${MAINNET_NODE_DIR}:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
-      - "${MAINNET_RPC_PORT}:8332"
-      - "${MAINNET_P2P_PORT}:8333"
-      - "${MAINNET_ZMQ_BLOCK_PORT}:28332"   # ZMQ block
-      - "${MAINNET_ZMQ_TX_PORT}:28333"   # ZMQ tx
+      - "${MAINNET_RPC_PORT}:${MAINNET_RPC_PORT}"
+      - "${MAINNET_P2P_PORT}:${MAINNET_P2P_PORT}"
+      - "${MAINNET_ZMQ_BLOCK_PORT}:${MAINNET_ZMQ_BLOCK_PORT}"   # ZMQ block
+      - "${MAINNET_ZMQ_TX_PORT}:${MAINNET_ZMQ_TX_PORT}"   # ZMQ tx
     restart: unless-stopped
     networks:
       - bitcoin-net
@@ -20,10 +20,10 @@ services:
       - ${TESTNET_NODE_DIR}:/bitcoin
     command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
     ports:
-      - "${TESTNET_RPC_PORT}:18332"
-      - "${TESTNET_P2P_PORT}:18333"
-      - "${TESTNET_ZMQ_BLOCK_PORT}:28334"   # ZMQ block
-      - "${TESTNET_ZMQ_TX_PORT}:28335"   # ZMQ tx
+      - "${TESTNET_RPC_PORT}:${TESTNET_RPC_PORT}"
+      - "${TESTNET_P2P_PORT}:${TESTNET_P2P_PORT}"
+      - "${TESTNET_ZMQ_BLOCK_PORT}:${TESTNET_ZMQ_BLOCK_PORT}"   # ZMQ block
+      - "${TESTNET_ZMQ_TX_PORT}:${TESTNET_ZMQ_TX_PORT}"   # ZMQ tx
     restart: unless-stopped
     networks:
       - bitcoin-net
@@ -32,11 +32,11 @@ services:
     build: ./rpc-proxy
     environment:
       - RPC_PROXY_PORT=${RPC_PROXY_PORT}
-      - ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
-      - MAINNET_NODE_URL=${RPC_MAINNET_NODE_URL}
-      - TESTNET_NODE_URL=${RPC_TESTNET_NODE_URL}
-      - MAINNET_AUTH=${RPC_MAINNET_AUTH}
-      - TESTNET_AUTH=${RPC_TESTNET_AUTH}
+      - RPC_ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
+      - RPC_MAINNET_URL=${RPC_MAINNET_URL}
+      - RPC_TESTNET_URL=${RPC_TESTNET_URL}
+      - RPC_MAINNET_AUTH=${RPC_MAINNET_AUTH}
+      - RPC_TESTNET_AUTH=${RPC_TESTNET_AUTH}
     ports:
       - "${RPC_PROXY_PORT}:${RPC_PROXY_PORT}"
     restart: unless-stopped

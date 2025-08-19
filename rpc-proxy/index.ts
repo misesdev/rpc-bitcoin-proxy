@@ -11,7 +11,7 @@ const appPort = process.env.RPC_PROXY_PORT
 app.post("/:network", async (req, res) => {
     
     const token = req.headers["authorization"];
-    if (token !== `Bearer ${process.env.ACCESS_TOKEN}`) 
+    if (token !== `Bearer ${process.env.RPC_ACCESS_TOKEN}`) 
         return res.status(401).json({ error: "Unauthorized" });
 
     const { network } = req.params;

@@ -11,12 +11,12 @@ type BNodeNetworks = {
 
 const Nodes: BNodeNetworks = {
     mainnet: {
-        url: process.env.MAINNET_NODE_URL as string,
-        auth: process.env.MAINNET_AUTH?.replace("|", ":") as string
+        url: process.env.RPC_MAINNET_URL as string,
+        auth: process.env.RPC_MAINNET_AUTH?.replace("|", ":") as string
     },
     testnet: {
-        url: process.env.TESTNET_NODE_URL as string,
-        auth: process.env.TESTNET_AUTH?.replace("|", ":") as string
+        url: process.env.RPC_TESTNET_URL as string,
+        auth: process.env.RPC_TESTNET_AUTH?.replace("|", ":") as string
     }
 } 
 
