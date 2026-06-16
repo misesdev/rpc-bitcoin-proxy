@@ -14,12 +14,12 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
+        max-size: "5m"
         max-file: "3"
     networks:
       - bitcoin-net
 
-  bitcoin-testnet:
+  bitcoin-testnet4:
     build: .
     volumes:
       - ${TESTNET_NODE_DIR}:/bitcoin
@@ -33,7 +33,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
+        max-size: "5m"
         max-file: "3"
     networks:
       - bitcoin-net
@@ -53,11 +53,11 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
+        max-size: "5m"
         max-file: "3"
     depends_on:
       - bitcoin-mainnet
-      - bitcoin-testnet
+      - bitcoin-testnet4
     networks:
       - bitcoin-net
 
@@ -79,3 +79,4 @@ services:
 networks:
   bitcoin-net:
     driver: bridge
+
