@@ -137,3 +137,11 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+electrs-mainnet/
+electrs-testnet4/
+mempool-cache-mainnet/
+mempool-cache-testnet4/
+mempool-db-mainnet/
+mempool-db-testnet4/
+

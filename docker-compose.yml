@@ -38,43 +38,169 @@ services:
     networks:
       - bitcoin-net
 
-  rpc-proxy:
-    build: ./rpc-proxy
-    environment:
-      - RPC_PROXY_PORT=${RPC_PROXY_PORT}
-      - RPC_ACCESS_TOKEN=${RPC_ACCESS_TOKEN}
-      - RPC_MAINNET_URL=${RPC_MAINNET_URL}
-      - RPC_TESTNET_URL=${RPC_TESTNET_URL}
-      - RPC_MAINNET_AUTH=${RPC_MAINNET_AUTH}
-      - RPC_TESTNET_AUTH=${RPC_TESTNET_AUTH}
-    ports:
-      - "${RPC_PROXY_PORT}:${RPC_PROXY_PORT}"
+  mempool-db-mainnet:
+    image: mariadb:10.11
     restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "5m"
-        max-file: "3"
+    environment:
+      MYSQL_DATABASE: mempool
+      MYSQL_USER: mempool
+      MYSQL_PASSWORD: ${MEMPOOL_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MEMPOOL_DB_ROOT_PASSWORD}
+    volumes:
+      - ./mempool-db-mainnet:/var/lib/mysql
+    networks:
+      - bitcoin-net
+
+  mempool-db-testnet4:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: mempool
+      MYSQL_USER: mempool
+      MYSQL_PASSWORD: ${MEMPOOL_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MEMPOOL_DB_ROOT_PASSWORD}
+    volumes:
+      - ./mempool-db-testnet4:/var/lib/mysql
+    networks:
+      - bitcoin-net
+
+  electrs-mainnet:
+    image: mempool/electrs:latest
+    container_name: electrs-mainnet
+    restart: unless-stopped
+    command:
+      - "--network=mainnet"
+      - "--daemon-rpc-addr=bitcoin-mainnet:${MAINNET_RPC_PORT}"
+      - "--electrum-rpc-addr=0.0.0.0:50001"
+      - "--http-addr=0.0.0.0:3000"
+      - "--cookie=${ELECTRS_MAINNET_AUTH}"
+      - "--daemon-dir=/bitcoin"
+      - "--db-dir=/data"
+    volumes:
+      - ./electrs-mainnet:/data
+      - ${MAINNET_NODE_DIR}:/bitcoin:ro
     depends_on:
       - bitcoin-mainnet
+    networks:
+      - bitcoin-net
+
+  electrs-testnet4:
+    image: mempool/electrs:latest
+    container_name: electrs-testnet4
+    restart: unless-stopped
+    command:
+      - "--network=testnet4"
+      - "--daemon-rpc-addr=bitcoin-testnet4:${TESTNET_RPC_PORT}"
+      - "--electrum-rpc-addr=0.0.0.0:50001"
+      - "--http-addr=0.0.0.0:3000"
+      - "--cookie=${ELECTRS_TESTNET_AUTH}"
+      - "--daemon-dir=/bitcoin"
+      - "--db-dir=/data"
+    volumes:
+      - ./electrs-testnet4:/data
+      - ${TESTNET_NODE_DIR}:/bitcoin:ro
+    depends_on:
       - bitcoin-testnet4
     networks:
       - bitcoin-net
 
-  # api-proxy:
-  #   build: ./api-proxy/
-  #   environment:
-  #     - ESPLORA_MAINNET_URL=${RPC_ACCESS_TOKEN}
-  #     - ESPLORA_TESTNET_URL=${RPC_MAINNET_NODE_URL}
-  #     - ESPLORA_PROXY_PORT=${ESPLORA_PROXY_PORT}
-  #   ports:
-  #     - "${ESPLORA_PROXY_PORT}:${ESPLORA_PROXY_PORT}"
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - esplora-mainnet
-  #     - esplora-testnet4
-  #   networks:
-  #     - bitcoin-net
+  mempool-mainnet-api:
+    image: mempool/backend:latest
+    container_name: mempool-mainnet-api
+    restart: unless-stopped
+    environment:
+      MEMPOOL_NETWORK: "mainnet"
+      MEMPOOL_BACKEND: "electrum"
+
+      CORE_RPC_HOST: "bitcoin-mainnet"
+      CORE_RPC_PORT: "${MAINNET_RPC_PORT}"
+      CORE_RPC_USERNAME: "MisesDevRPC"
+      CORE_RPC_PASSWORD: "QWASZXqwaszx1234"
+
+      ELECTRUM_HOST: "electrs-mainnet"
+      ELECTRUM_PORT: "50001"
+      ELECTRUM_TLS_ENABLED: "false"
+
+      DATABASE_ENABLED: "true"
+      DATABASE_HOST: "mempool-db-mainnet"
+      DATABASE_PORT: "3306"
+      DATABASE_DATABASE: "mempool"
+      DATABASE_USERNAME: "mempool"
+      DATABASE_PASSWORD: "${MEMPOOL_DB_PASSWORD}"
+
+      STATISTICS_ENABLED: "true"
+      LIGHTNING_ENABLED: "false"
+    volumes:
+      - ./mempool-cache-mainnet:/backend/cache
+    depends_on:
+      - bitcoin-mainnet
+      - electrs-mainnet
+      - mempool-db-mainnet
+    networks:
+      - bitcoin-net
+
+  mempool-testnet4-api:
+    image: mempool/backend:latest
+    container_name: mempool-testnet4-api
+    restart: unless-stopped
+    environment:
+      MEMPOOL_NETWORK: "testnet4"
+      MEMPOOL_BACKEND: "electrum"
+
+      CORE_RPC_HOST: "bitcoin-testnet4"
+      CORE_RPC_PORT: "${TESTNET_RPC_PORT}"
+      CORE_RPC_USERNAME: "MisesDevRPC"
+      CORE_RPC_PASSWORD: "QWASZXqwaszx1234"
+
+      ELECTRUM_HOST: "electrs-testnet4"
+      ELECTRUM_PORT: "50001"
+      ELECTRUM_TLS_ENABLED: "false"
+
+      DATABASE_ENABLED: "true"
+      DATABASE_HOST: "mempool-db-testnet4"
+      DATABASE_PORT: "3306"
+      DATABASE_DATABASE: "mempool"
+      DATABASE_USERNAME: "mempool"
+      DATABASE_PASSWORD: "${MEMPOOL_DB_PASSWORD}"
+
+      STATISTICS_ENABLED: "true"
+      LIGHTNING_ENABLED: "false"
+    volumes:
+      - ./mempool-cache-testnet4:/backend/cache
+    depends_on:
+      - bitcoin-testnet4
+      - electrs-testnet4
+      - mempool-db-testnet4
+    networks:
+      - bitcoin-net
+
+  mempool-mainnet-frontend:
+    image: mempool/frontend:latest
+    restart: unless-stopped
+    environment:
+      FRONTEND_HTTP_PORT: "8080"
+      BACKEND_MAINNET_HTTP_HOST: "mempool-mainnet-api"
+      BACKEND_MAINNET_HTTP_PORT: "8999"
+    ports:
+      - "${MEMPOOL_MAINNET_PORT}:8080"
+    depends_on:
+      - mempool-mainnet-api
+    networks:
+      - bitcoin-net
+
+  mempool-testnet4-frontend:
+    image: mempool/frontend:latest
+    restart: unless-stopped
+    environment:
+      FRONTEND_HTTP_PORT: "8080"
+      BACKEND_TESTNET4_HTTP_HOST: "mempool-testnet4-api"
+      BACKEND_TESTNET4_HTTP_PORT: "8999"
+    ports:
+      - "${MEMPOOL_TESTNET4_PORT}:8080"
+    depends_on:
+      - mempool-testnet4-api
+    networks:
+      - bitcoin-net
 
 networks:
   bitcoin-net:
