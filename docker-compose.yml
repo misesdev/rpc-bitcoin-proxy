@@ -68,6 +68,10 @@ services:
     image: mempool/electrs:latest
     container_name: electrs-mainnet
     restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     command:
       - "--network=mainnet"
       - "--daemon-rpc-addr=bitcoin-mainnet:${MAINNET_RPC_PORT}"
@@ -76,6 +80,7 @@ services:
       - "--cookie=${ELECTRS_MAINNET_AUTH}"
       - "--daemon-dir=/bitcoin"
       - "--db-dir=/data"
+      - "--lightmode"
     volumes:
       - ./electrs-mainnet:/data
       - ${MAINNET_NODE_DIR}:/bitcoin:ro
@@ -88,6 +93,10 @@ services:
     image: mempool/electrs:latest
     container_name: electrs-testnet4
     restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     command:
       - "--network=testnet4"
       - "--daemon-rpc-addr=bitcoin-testnet4:${TESTNET_RPC_PORT}"
@@ -193,8 +202,8 @@ services:
     restart: unless-stopped
     environment:
       FRONTEND_HTTP_PORT: "8080"
-      BACKEND_TESTNET4_HTTP_HOST: "mempool-testnet4-api"
-      BACKEND_TESTNET4_HTTP_PORT: "8999"
+      BACKEND_MAINNET_HTTP_HOST: "mempool-testnet4-api"
+      BACKEND_MAINNET_HTTP_PORT: "8999"
     ports:
       - "${MEMPOOL_TESTNET4_PORT}:8080"
     depends_on:
