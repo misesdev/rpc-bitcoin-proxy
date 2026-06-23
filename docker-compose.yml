@@ -4,7 +4,7 @@ services:
     build: .
     volumes:
       - ${MAINNET_NODE_DIR}:/bitcoin
-    command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"]
+    command: ["-datadir=/bitcoin", "-conf=/bitcoin/bitcoin.conf"] # , "-reindex"]
     ports:
       - "${MAINNET_RPC_PORT}:${MAINNET_RPC_PORT}"
       - "${MAINNET_P2P_PORT}:${MAINNET_P2P_PORT}"
@@ -80,7 +80,7 @@ services:
       - "--cookie=${ELECTRS_MAINNET_AUTH}"
       - "--daemon-dir=/bitcoin"
       - "--db-dir=/data"
-      - "--lightmode"
+      # - "--lightmode"
     volumes:
       - ./electrs-mainnet:/data
       - ${MAINNET_NODE_DIR}:/bitcoin:ro
