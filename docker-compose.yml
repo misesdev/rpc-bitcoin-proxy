@@ -64,26 +64,16 @@ services:
     networks:
       - bitcoin-net
 
-  electrs-mainnet:
-    image: mempool/electrs:latest
-    container_name: electrs-mainnet
+  fulcrum-mainnet:
+    image: cculianu/fulcrum:latest
+    container_name: fulcrum-mainnet
     restart: unless-stopped
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
-    command:
-      - "--network=mainnet"
-      - "--daemon-rpc-addr=bitcoin-mainnet:${MAINNET_RPC_PORT}"
-      - "--electrum-rpc-addr=0.0.0.0:50001"
-      - "--http-addr=0.0.0.0:3000"
-      - "--cookie=${ELECTRS_MAINNET_AUTH}"
-      - "--daemon-dir=/bitcoin"
-      - "--db-dir=/data"
-      # - "--lightmode"
     volumes:
-      - ./electrs-mainnet:/data
+      - ./fulcrum-mainnet:/data
       - ${MAINNET_NODE_DIR}:/bitcoin:ro
+    command:
+      - Fulcrum
+      - /data/fulcrum.conf
     depends_on:
       - bitcoin-mainnet
     networks:
@@ -126,7 +116,7 @@ services:
       CORE_RPC_USERNAME: "MisesDevRPC"
       CORE_RPC_PASSWORD: "QWASZXqwaszx1234"
 
-      ELECTRUM_HOST: "electrs-mainnet"
+      ELECTRUM_HOST: "fulcrum-mainnet"
       ELECTRUM_PORT: "50001"
       ELECTRUM_TLS_ENABLED: "false"
 
@@ -143,7 +133,7 @@ services:
       - ./mempool-cache-mainnet:/backend/cache
     depends_on:
       - bitcoin-mainnet
-      - electrs-mainnet
+      - fulcrum-mainnet
       - mempool-db-mainnet
     networks:
       - bitcoin-net
